@@ -5,13 +5,13 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_DB: test_database
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: newpassword
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     networks:
-          - default
+      - default
 
   redis:
     image: redis
@@ -29,6 +29,8 @@ services:
     depends_on:
       - db
       - redis
+    env_file:
+      - .env
 
   celery:
     build: .
@@ -36,3 +38,5 @@ services:
     depends_on:
       - db
       - redis
+    env_file:
+      - .env
