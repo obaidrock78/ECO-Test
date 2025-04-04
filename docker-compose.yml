@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: test_database
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: newpassword
+    ports:
+      - "5433:5432"
+    networks:
+          - default
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6380:6379"
+
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8001 djangoProject.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: .
+    command: celery -A djangoProject worker --loglevel=info
+    depends_on:
+      - db
+      - redis
